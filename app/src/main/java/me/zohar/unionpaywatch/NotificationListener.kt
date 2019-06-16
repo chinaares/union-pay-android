@@ -3,9 +3,12 @@ package me.zohar.unionpaywatch
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import io.reactivex.schedulers.Schedulers
 import java.util.regex.Pattern
 
 class NotificationListener : NotificationListenerService() {
+
+    private val apiService: ApiService = ApiService.create()
 
     override fun onListenerConnected() {
         super.onListenerConnected()
@@ -43,7 +46,11 @@ class NotificationListener : NotificationListenerService() {
             val money = text?.let { extractMoney(it) }
             if (money != null) {
                 //说明收到款了 推送服务器
+                apiService.notify(money)
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ t ->  {
 
+                    }},{ t: Throwable? -> t?.printStackTrace() })
 
             }
         }
